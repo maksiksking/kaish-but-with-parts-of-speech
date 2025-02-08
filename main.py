@@ -11,9 +11,14 @@ with open('jmdict-eng-3.6.1.json', 'r', encoding='utf-8') as f:
 with open('readings-kanji.csv', 'r', newline='', encoding='utf-8') as rtxt:
     readings = list(csv.reader(rtxt, delimiter=' '))
 
-# Opening the file this all wll go into
+# Opening the file this all will go into
 ft = open('txt.csv', 'w', newline='', encoding='utf-8')
 ftxt = csv.writer(ft)
+
+# Opening the file to which verbs are gonna go into
+tof = open('toxt.csv', 'w', newline='', encoding='utf-8')
+toxt = csv.writer(tof)
+
 
 # Checking if the data works, I'd rather not remove this, to know if it does
 if isinstance(data, dict):
@@ -35,23 +40,30 @@ for entry in data["words"]:
         else:
             word = entry["kana"][0]["text"]
 
-        # The actual part of speech is gotten here, N/A if else (there are no N/A's in the Kaishi words at least)
-        part_of_speech = entry["sense"][0].get("partOfSpeech", "N/A")
+        # The actual part of speech is gotten here, N/A if else (there are no N/A's, in the Kaishi words at least)
+        # Also merges duplicates, the best way to do it that I can think of
+        pos_list = []
+        for sense in entry["sense"]:
+            pos_list.extend(sense.get("partOfSpeech", []))
 
-        # The things that checks every word if it matches with Kaishi
+        part_of_speech = ' '.join(set(pos_list))
+
+        # The thing that checks every word if it matches with Kaishi
         for reading in readings:
             if word==reading[0]:
                 # And this adds it to the file
-                ft.write(word + "," + ' '.join(part_of_speech) + '\n')
+                ft.write(word + "," + ''.join(part_of_speech) + '\n')
+                # And this adds the verbs
+                if word.endswith(("う", "く", "ぐ", "す", "つ", "ぬ", "ぶ", "む", "る")):
+                    tof.write(word + '\n')
 
 # Close the file to prevent nuclear explosion.
 ft.close()
 
 # Now open the same file but only for reading
 with open('txt.csv', 'r', newline='', encoding='utf-8') as ftcsv:
-    # Checks the final data for duplicates, JMdict may have some,
-    # I might have fixed that by checking for kanji already but idk
-    # I kept the code for safety anyways
+    # Checks for duplicates, yes this might nullify a useful meaning under another reading,
+    # but I'm pretty sure that almost all words in Kaishi only use the first (aka most popular) reading
     print(ftcsv.read())
     # Puts pointer at the start, super important
     ftcsv.seek(0)
@@ -72,3 +84,4 @@ for entry in unique:
 
 # The end. Rate the movie from 1 to 10, I'm waiting.
 fta.close()
+tof.close()
