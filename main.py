@@ -17,7 +17,7 @@ if isinstance(data, dict):
 entries_1 = data['words'][:6]
 
 entries_2 = entries_1[0]['sense'][0]['partOfSpeech']
-# print(json.dumps(entries_1, indent=2)) a a a
+# print(json.dumps(entries_1, indent=2)) a a a a
 
 
 for entry in data["words"]:
