@@ -1,7 +1,6 @@
 import json
 import csv
 
-a = 64
 # Oh, look, Maksiks writing comments as if anyone ever is gonna read this. What an idiot.
 
 # Opening the JMdict data json yoinked from https://github.com/scriptin/jmdict-simplified cause XML is ... DON'T
@@ -21,17 +20,17 @@ if isinstance(data, dict):
     print(data.keys())
 
 # Here is some more debug
-# entries_1 = data['words'][:6]
+# entries_1 = data['words'][:60]
 #
 # entries_2 = entries_1[0]['sense'][0]['partOfSpeech']
-# print(json.dumps(entries_1, indent=2)) a a a a
+# print(json.dumps(entries_1, indent=2))
 
 # The juice. Get words from data as a list.
 for entry in data["words"]:
     # if exists
     if "sense" in entry and isinstance(entry["sense"], list) and entry["sense"]:
-        # If has kanji word = kanji, else kana
-        if entry["kanji"]:
+        # If has kanji then word = kanji, else kana or if kana is more common it's also kana
+        if entry["kanji"] and "uk" not in entry["sense"][0]["misc"]:
             word = entry["kanji"][0]["text"]
         else:
             word = entry["kana"][0]["text"]
